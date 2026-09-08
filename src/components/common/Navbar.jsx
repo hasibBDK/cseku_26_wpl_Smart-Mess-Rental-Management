@@ -7,7 +7,7 @@ export default function Navbar({ simple = false }) {
   return (
     <header className={`nav-shell ${simple?"nav-simple":""}`}>
       <Link to="/" className="brand"><span className="brand-mark">⌂</span>Campus<span>Nest</span></Link>
-      {!simple&&<><button className="menu-button" onClick={()=>setOpen(!open)} aria-label="Toggle menu"><i/><i/><i/></button><nav className={`nav-links ${open?"is-open":""}`}><a href={href("#homes")}>Find a home</a><a href={href("#opportunities")}>Jobs &amp; tuition</a><a href={href("#community")}>Our community</a></nav></>}
+      {!simple&&<><button className="menu-button" onClick={()=>setOpen(!open)} aria-label="Toggle menu"><i/><i/><i/></button><nav className={`nav-links ${open?"is-open":""}`}><a href={href("#home")}>Find Home/Mess</a><a href={href("#tuition")}>Tuition</a><a href={href("#market")}>Buy/Sell</a></nav></>}
       <div className="nav-actions"><Link className="login-link" to="/login">Log in</Link><Link className="button button-dark" to="/login?mode=signup">Join CampusNest <span>↗</span></Link></div>
     </header>
   );

@@ -73,6 +73,22 @@ npm install
 npm start
 ```
 
+## Authentication setup
+
+1. Copy `.env.example` to `.env` and add the Firebase Web App configuration.
+2. In Firebase Console, enable **Authentication > Sign-in method > Email/Password**.
+3. Copy `server/.env.example` to `server/.env` and add the MongoDB Atlas URI and Firebase Admin service-account values.
+4. In MongoDB Atlas, create a database user and allow your development IP under **Network Access**.
+5. Put approved admin email addresses in `ADMIN_EMAILS`. Student, guardian, and homeowner are public signup roles; admin is allowlisted.
+6. Run the apps in separate terminals:
+
+```powershell
+npm run dev
+npm run server:dev
+```
+
+The API health endpoint is `http://localhost:5000/api/health`.
+
 ## Contribution Guidelines
 
 - Create a feature branch from `main` for every task: `feature/<short-description>`
