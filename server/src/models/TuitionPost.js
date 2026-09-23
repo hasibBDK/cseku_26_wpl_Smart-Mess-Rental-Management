@@ -12,6 +12,7 @@ const tuitionPostSchema = new mongoose.Schema(
     status: { type: String, enum: ["open", "selected"], default: "open" },
     applicants: [{ student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, appliedAt: { type: Date, default: Date.now } }],
     selectedStudent: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    isDemo: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

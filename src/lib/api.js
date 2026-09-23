@@ -1,5 +1,12 @@
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
+export async function publicRequest(path) {
+  const response = await fetch(`${apiUrl}${path}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Request failed.");
+  return data;
+}
+
 export async function authRequest(path, user, options = {}) {
   const token = await user.getIdToken();
   const response = await fetch(`${apiUrl}${path}`, {

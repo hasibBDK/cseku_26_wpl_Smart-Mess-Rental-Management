@@ -11,7 +11,7 @@ const roleContent = {
     label: "Student",
     title: "Your student profile",
     description: "Find a suitable home, explore tuition opportunities and connect with the CampusNest community.",
-    actions: [["⌂", "Find a home", "Browse available rooms and mess seats", "/homes"], ["⌁", "Explore tuition", "Find tuition opportunities near you", "/tuition"], ["◫", "Buy or sell", "Trade useful items with students", "/marketplace"]],
+    actions: [["⌂", "Find a home", "Browse available rooms and mess seats", "/homes"], ["⌁", "Explore tuition", "Find tuition opportunities near you", "/tuition"], ["+", "Post tuition", "Share a tuition opportunity with students", "/tuition?view=post"], ["◫", "Buy or sell", "Trade useful items with students", "/marketplace"]],
   },
   homeowner: {
     label: "Home / Mess Owner",

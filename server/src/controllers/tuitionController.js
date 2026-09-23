@@ -52,6 +52,7 @@ export async function applyToTuition(req, res) {
   if (invalidId(req.params.id)) return res.status(400).json({ message: "Invalid tuition post." });
   const post = await TuitionPost.findById(req.params.id);
   if (!post) return res.status(404).json({ message: "Tuition post not found." });
+  if (post.guardian.equals(req.user._id)) return res.status(400).json({ message: "You cannot apply to your own tuition post." });
   if (post.status !== "open") return res.status(409).json({ message: "This tuition is no longer accepting applications." });
   if (post.applicants.some(({ student }) => student.equals(req.user._id))) return res.status(409).json({ message: "You have already applied." });
 

@@ -6,8 +6,8 @@ const router = Router();
 
 router.use(authenticate);
 router.get("/", listTuitions);
-router.post("/", allowRoles("guardian"), createTuition);
+router.post("/", allowRoles("guardian", "student"), createTuition);
 router.post("/:id/apply", allowRoles("student"), applyToTuition);
-router.patch("/:id/select/:studentId", allowRoles("guardian"), selectStudent);
+router.patch("/:id/select/:studentId", allowRoles("guardian", "student"), selectStudent);
 
 export default router;
