@@ -11,6 +11,13 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "guardian", "homeowner", "admin"],
     },
     isActive: { type: Boolean, default: true },
+    notifications: [{
+      type: { type: String, enum: ["tuition_selected"], required: true },
+      title: { type: String, required: true },
+      message: { type: String, required: true },
+      read: { type: Boolean, default: false },
+      createdAt: { type: Date, default: Date.now },
+    }],
   },
   { timestamps: true }
 );

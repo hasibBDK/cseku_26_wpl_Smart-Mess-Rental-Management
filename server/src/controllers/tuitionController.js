@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import TuitionPost from "../models/TuitionPost.js";
+import User from "../models/User.js";
 
 function invalidId(id) {
   return !mongoose.isValidObjectId(id);
 }
 
 export async function listTuitions(req, res) {
-  const posts = await TuitionPost.find()
+  const posts = await TuitionPost.find({ status: "open" })
     .populate("guardian", "name")
     .populate("applicants.student", "name email")
     .populate("selectedStudent", "name email")
@@ -55,6 +56,7 @@ export async function applyToTuition(req, res) {
   if (post.guardian.equals(req.user._id)) return res.status(400).json({ message: "You cannot apply to your own tuition post." });
   if (post.status !== "open") return res.status(409).json({ message: "This tuition is no longer accepting applications." });
   if (post.applicants.some(({ student }) => student.equals(req.user._id))) return res.status(409).json({ message: "You have already applied." });
+  if (post.applicants.length >= 3) return res.status(409).json({ message: "This tuition already has the maximum of 3 applicants." });
 
   post.applicants.push({ student: req.user._id });
   await post.save();
@@ -68,8 +70,15 @@ export async function selectStudent(req, res) {
   if (!post) return res.status(404).json({ message: "Tuition post not found." });
   if (!post.applicants.some(({ student }) => student.equals(studentId))) return res.status(400).json({ message: "This student did not apply for the tuition." });
 
-  post.selectedStudent = studentId;
-  post.status = "selected";
-  await post.save();
-  res.json({ message: "Student selected successfully." });
+  await User.findByIdAndUpdate(studentId, {
+    $push: {
+      notifications: {
+        type: "tuition_selected",
+        title: "You were selected for a tuition",
+        message: `Guardian selected you for ${post.subject} tuition for ${post.childClass} in ${post.location}.`,
+      },
+    },
+  });
+  await TuitionPost.deleteOne({ _id: post._id });
+  res.json({ message: "Student selected successfully. The tuition post has been closed." });
 }

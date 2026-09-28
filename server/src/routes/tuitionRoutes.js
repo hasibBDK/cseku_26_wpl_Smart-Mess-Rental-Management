@@ -8,6 +8,6 @@ router.use(authenticate);
 router.get("/", listTuitions);
 router.post("/", allowRoles("guardian", "student"), createTuition);
 router.post("/:id/apply", allowRoles("student"), applyToTuition);
-router.patch("/:id/select/:studentId", allowRoles("guardian", "student"), selectStudent);
+router.patch("/:id/select/:studentId", allowRoles("guardian"), selectStudent);
 
 export default router;
