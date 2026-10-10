@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { currentUser, register } from "../controllers/authController.js";
+import { currentUser, register, updateCurrentUser } from "../controllers/authController.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { firebaseAuth } from "../config/firebaseAdmin.js";
 
@@ -20,5 +20,6 @@ async function verifyFirebaseOnly(req, res, next) {
 
 router.post("/register", verifyFirebaseOnly, register);
 router.get("/me", authenticate, currentUser);
+router.patch("/me", authenticate, updateCurrentUser);
 
 export default router;

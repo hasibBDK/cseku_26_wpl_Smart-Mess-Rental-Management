@@ -22,6 +22,7 @@ export default function TuitionDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [viewingStudent, setViewingStudent] = useState(null);
   const requestedView = params.get("view");
   const pageView = ["browse", "post", "mine", "applicants"].includes(requestedView) ? requestedView : profile?.role === "guardian" ? "mine" : "browse";
   const canPost = profile?.role === "guardian" || profile?.role === "student";
@@ -98,7 +99,8 @@ export default function TuitionDashboard() {
       <label>{t("Subject")}<input name="subject" required maxLength="100" placeholder={language === "bn" ? "যেমন: গণিত ও বিজ্ঞান" : "e.g. Mathematics and Science"} /></label>
       <label>{t("Expected teacher department")}<input name="expectedDepartment" required maxLength="100" placeholder={language === "bn" ? "যেমন: সিএসই বা গণিত" : "e.g. CSE, Mathematics or any department"} /></label>
       <label>{t("Offered salary (Tk/month)")}<input name="offeredSalary" required type="text" inputMode="numeric" pattern="[0-9০-৯]+" minLength="1" placeholder={language === "bn" ? "যেমন: ৫০০০" : "e.g. 5000"} /></label>
-      <label className="wide-field">{t("Location")}<input name="location" required maxLength="160" placeholder={language === "bn" ? "যেমন: সোনাডাঙ্গা, খুলনা" : "e.g. Sonadanga, Khulna"} /></label>
+      <label>{t("Location")}<input name="location" required maxLength="160" placeholder={language === "bn" ? "যেমন: সোনাডাঙ্গা, খুলনা" : "e.g. Sonadanga, Khulna"} /></label>
+      <label>{language === "bn" ? "অভিভাবকের ফোন নম্বর" : "Guardian phone number"}<input name="guardianPhone" required type="tel" maxLength="20" placeholder={language === "bn" ? "যেমন: ০১৭xxxxxxxx" : "e.g. 017xxxxxxxx"} /></label>
       <label className="wide-field">{t("More details")}<textarea name="description" maxLength="1000" rows="4" placeholder={language === "bn" ? "সময়সূচি, শিক্ষকের লিঙ্গ বা অন্য প্রয়োজন" : "Preferred schedule, teacher gender or other requirements"} /></label>
       <button className="button button-dark wide-field" disabled={submitting} type="submit">{t(submitting ? "Publishing…" : "Publish tuition requirement")}</button>
     </form></section>}
@@ -110,7 +112,7 @@ export default function TuitionDashboard() {
         <div className="tuition-meta"><span>⌖ {post.location}</span><span>{t("Expected department")}: {post.expectedDepartment}</span><span>{t("Posted by")} {post.guardian?.name || t("Guardian")}</span><span>{language === "bn" ? `পোস্টের তারিখ: ${new Date(post.createdAt).toLocaleDateString("bn-BD")}` : `Posted on: ${new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`}</span><span>{language === "bn" ? `${post.applicantCount} জন আবেদনকারী` : `${post.applicantCount} applicant${post.applicantCount === 1 ? "" : "s"}`}</span></div>
         {post.description && <p className="tuition-description">{post.description}</p>}
         {profile?.role === "student" && String(post.guardian?._id) !== String(profile._id) && <button className="button button-dark" disabled={post.hasApplied || post.status !== "open" || post.applicantCount >= 3} onClick={() => apply(post._id)}>{t(post.hasApplied ? "Applied" : post.status !== "open" || post.applicantCount >= 3 ? "Applications closed" : "Apply for this tuition")}</button>}
-        {canPost && pageView === "applicants" && <div className="applicant-panel"><h3>{t("Student applicants")}</h3>{!post.applicants?.length ? <p>{t("No student has applied yet.")}</p> : post.applicants.map(({ student }) => <div className="applicant-row" key={student._id}><div className="mini-avatar">{student.name.charAt(0).toUpperCase()}</div><div><strong>{student.name}</strong><small>{student.email}</small></div><button className="button button-dark" disabled={post.status === "selected"} onClick={() => selectStudent(post._id, student._id)}>{t(String(post.selectedStudent?._id) === String(student._id) ? "Selected" : "Select student")}</button></div>)}</div>}
+        {canPost && pageView === "applicants" && <div className="applicant-panel"><h3>{t("Student applicants")}</h3>{!post.applicants?.length ? <p>{t("No student has applied yet.")}</p> : post.applicants.map(({ student }) => <div className="applicant-row" key={student._id}><div className="mini-avatar">{student.name.charAt(0).toUpperCase()}</div><div><strong>{student.name}</strong><small>Student applicant</small>{viewingStudent?._id === student._id && <div className="student-preview"><span>Department: {student.department || "Not added"}</span><span>Year: {student.academicYear || "Not added"}</span><span>Experience: {student.teachingExperience || "Not added"}</span></div>}</div><button className="button button-light" type="button" onClick={() => setViewingStudent(viewingStudent?._id === student._id ? null : student)}>View profile</button><button className="button button-dark" disabled={post.status === "selected"} onClick={() => selectStudent(post._id, student._id)}>{t(String(post.selectedStudent?._id) === String(student._id) ? "Selected" : "Select student")}</button></div>)}</div>}
       </article>)}
     </section></>}
   </main></div>;

@@ -12,7 +12,7 @@ function adminEmails() {
 }
 
 export async function register(req, res) {
-  const { name, role } = req.body;
+  const { name, role, department = "", academicYear = "", teachingExperience = "" } = req.body;
   const email = req.firebaseUser.email?.toLowerCase();
 
   if (typeof name !== "string" || !name.trim() || typeof role !== "string") {
@@ -37,10 +37,20 @@ export async function register(req, res) {
     name: name.trim(),
     email,
     role,
+    department: role === "student" ? String(department).trim() : "",
+    academicYear: role === "student" ? String(academicYear).trim() : "",
+    teachingExperience: role === "student" ? String(teachingExperience).trim() : "",
   });
   res.status(201).json({ message: "Account created successfully.", user });
 }
 
 export function currentUser(req, res) {
   res.json({ user: req.user });
+}
+
+export async function updateCurrentUser(req, res) {
+  if (req.user.role !== "student") return res.status(403).json({ message: "Only student profiles can be updated here." });
+  const { department = "", academicYear = "", teachingExperience = "" } = req.body;
+  const user = await User.findByIdAndUpdate(req.user._id, { department: String(department).trim(), academicYear: String(academicYear).trim(), teachingExperience: String(teachingExperience).trim() }, { new: true, runValidators: true });
+  res.json({ message: "Student profile updated successfully.", user });
 }

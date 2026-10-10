@@ -9,7 +9,7 @@ function invalidId(id) {
 export async function listTuitions(req, res) {
   const posts = await TuitionPost.find({ status: "open" })
     .populate("guardian", "name")
-    .populate("applicants.student", "name email")
+    .populate("applicants.student", "name department academicYear teachingExperience")
     .populate("selectedStudent", "name email")
     .sort({ createdAt: -1 });
 
@@ -29,9 +29,9 @@ export async function listTuitions(req, res) {
 }
 
 export async function createTuition(req, res) {
-  const { childClass, subject, expectedDepartment, offeredSalary, location, description = "" } = req.body;
-  if (![childClass, subject, expectedDepartment, location].every((value) => typeof value === "string" && value.trim())) {
-    return res.status(400).json({ message: "Class, subject, expected department and location are required." });
+  const { childClass, subject, expectedDepartment, offeredSalary, location, guardianPhone, description = "" } = req.body;
+  if (![childClass, subject, expectedDepartment, location, guardianPhone].every((value) => typeof value === "string" && value.trim())) {
+    return res.status(400).json({ message: "Class, subject, expected department, location and phone number are required." });
   }
   const salary = Number(offeredSalary);
   if (!Number.isFinite(salary) || salary <= 0) return res.status(400).json({ message: "Enter a valid offered salary." });
@@ -43,6 +43,7 @@ export async function createTuition(req, res) {
     expectedDepartment: expectedDepartment.trim(),
     offeredSalary: salary,
     location: location.trim(),
+    guardianPhone: guardianPhone.trim(),
     description: typeof description === "string" ? description.trim() : "",
   });
   await post.populate("guardian", "name");
@@ -70,15 +71,47 @@ export async function selectStudent(req, res) {
   if (!post) return res.status(404).json({ message: "Tuition post not found." });
   if (!post.applicants.some(({ student }) => student.equals(studentId))) return res.status(400).json({ message: "This student did not apply for the tuition." });
 
-  await User.findByIdAndUpdate(studentId, {
-    $push: {
-      notifications: {
-        type: "tuition_selected",
-        title: "You were selected for a tuition",
-        message: `Guardian selected you for ${post.subject} tuition for ${post.childClass} in ${post.location}.`,
-      },
-    },
+  post.selectedStudent = studentId;
+  post.status = "selected";
+  post.paymentStatus = "pending";
+  await post.save();
+  await User.findByIdAndUpdate(studentId, { $push: { notifications: { type: "tuition_selected", title: "You were selected for a tuition", message: `Guardian selected you for ${post.subject} tuition for ${post.childClass} in ${post.location}.`, tuitionPost: post._id, paymentAmount: Math.round(post.offeredSalary * 0.15) } } });
+  res.json({ message: "Student selected successfully. Admin will review the tuition." });
+}
+
+export async function listAdminTuitions(req, res) {
+  const posts = await TuitionPost.find({ status: { $in: ["selected", "forwarded"] } })
+    .populate("guardian", "name email")
+    .populate("selectedStudent", "name email")
+    .sort({ updatedAt: -1 });
+  res.json({ posts });
+}
+
+export async function listMySelectedTuitions(req, res) {
+  const posts = await TuitionPost.find({ selectedStudent: req.user._id, status: "selected" }).populate("guardian", "name email").sort({ updatedAt: -1 });
+  res.json({ posts });
+}
+
+export async function submitPayment(req, res) {
+  const { method, transactionId } = req.body;
+  if (!["bKash", "Nagad", "Rocket"].includes(method) || typeof transactionId !== "string" || !transactionId.trim()) return res.status(400).json({ message: "Choose a payment method and enter the transaction ID." });
+  const post = await TuitionPost.findOne({ _id: req.params.id, selectedStudent: req.user._id, status: "selected" });
+  if (!post) return res.status(404).json({ message: "Selected tuition not found." });
+  post.paymentStatus = "paid"; post.paymentMethod = method; post.paymentTransactionId = transactionId.trim(); await post.save();
+  res.json({ message: "Payment submitted. Admin will verify and forward the tuition." });
+}
+
+export async function forwardTuition(req, res) {
+  if (invalidId(req.params.id)) return res.status(400).json({ message: "Invalid tuition post." });
+  const post = await TuitionPost.findOne({ _id: req.params.id, status: "selected" })
+    .populate("guardian", "name email")
+    .populate("selectedStudent", "name email");
+  if (!post) return res.status(404).json({ message: "Selected tuition not found." });
+  post.paymentStatus = "paid";
+  post.status = "forwarded";
+  await post.save();
+  await User.findByIdAndUpdate(post.selectedStudent._id, {
+    $push: { notifications: { type: "tuition_forwarded", title: "Tuition confirmed — contact the guardian", message: `Guardian: ${post.guardian.name}\nPhone: ${post.guardianPhone}\nEmail: ${post.guardian.email}\nTuition: ${post.subject} · ${post.childClass}\nLocation: ${post.location}` } },
   });
-  await TuitionPost.deleteOne({ _id: post._id });
-  res.json({ message: "Student selected successfully. The tuition post has been closed." });
+  res.json({ message: "Tuition forwarded to the selected teacher." });
 }

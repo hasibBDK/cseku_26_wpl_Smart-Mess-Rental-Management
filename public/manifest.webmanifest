@@ -1,0 +1,10 @@
+{
+  "name": "CampusNest",
+  "short_name": "CampusNest",
+  "description": "Find homes, tuition opportunities and campus marketplace items.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eaf6ef",
+  "theme_color": "#168b5b",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

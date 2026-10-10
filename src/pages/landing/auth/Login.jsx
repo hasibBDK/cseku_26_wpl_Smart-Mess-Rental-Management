@@ -23,7 +23,7 @@ export default function Login() {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         try {
           const name = form.get("name").trim(); await updateProfile(credential.user, { displayName: name });
-          await authRequest("/auth/register", credential.user, { method: "POST", body: JSON.stringify({ name, role: form.get("role") }) });
+          await authRequest("/auth/register", credential.user, { method: "POST", body: JSON.stringify({ name, role: form.get("role"), department: form.get("department"), academicYear: form.get("academicYear"), teachingExperience: form.get("teachingExperience") }) });
           await credential.user.getIdToken(true);
         } catch (backendError) { await deleteUser(credential.user).catch(() => {}); throw backendError; }
       } else {
