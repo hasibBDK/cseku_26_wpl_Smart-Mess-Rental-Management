@@ -20,8 +20,9 @@ function corsOrigin(origin, callback) {
   const isLocalDevelopment =
     process.env.NODE_ENV !== "production" &&
     /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin || "");
+  const isCapacitorApp = ["https://localhost", "http://localhost", "capacitor://localhost"].includes(origin || "");
 
-  if (!origin || allowedOrigins.includes(origin) || isLocalDevelopment) {
+  if (!origin || allowedOrigins.includes(origin) || isLocalDevelopment || isCapacitorApp) {
     return callback(null, true);
   }
   callback(new Error(`Origin ${origin} is not allowed by CORS.`));
@@ -46,9 +47,13 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ message: "Something went wrong on the server." });
 });
 
-connectDatabase()
-  .then(() => app.listen(port, () => console.log(`API running at http://localhost:${port}`)))
-  .catch((error) => {
-    console.error("Server startup failed:", error.message);
-    process.exitCode = 1;
-  });
+export default app;
+
+if (process.env.VERCEL !== "1") {
+  connectDatabase()
+    .then(() => app.listen(port, () => console.log(`API running at http://localhost:${port}`)))
+    .catch((error) => {
+      console.error("Server startup failed:", error.message);
+      process.exitCode = 1;
+    });
+}

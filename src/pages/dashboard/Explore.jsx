@@ -39,3 +39,4 @@ export default function Explore({ type }) {
     <section className="empty-state"><span>{type === "homes" ? "⌂" : type === "tuition" ? "⌁" : "◫"}</span><h2>{t(page.emptyTitle)}</h2><p>{t(page.emptyText)}</p></section>
   </main></div>;
 }
+

@@ -6,7 +6,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { publicRequest } from "../../lib/api";
 
 const Icon=({type})=><span className="feature-icon" aria-hidden="true">{{home:"⌂",tuition:"⌁",market:"◫"}[type]}</span>;
-export default function Landing(){const {t}=useLanguage(); const [community, setCommunity]=useState({students:null,guardians:null,homeowners:null}); useEffect(()=>{publicRequest("/stats/community").then(setCommunity).catch(()=>{});},[]); const count=(value)=>value===null?"—":value.toLocaleString(); const cards=[
+export default function Landing(){const {t}=useLanguage(); const [community, setCommunity]=useState({students:null,guardians:null,homeowners:null}); useEffect(()=>{publicRequest("/stats/community").then(setCommunity).catch(()=>{});},[]); const count=(value)=>value===null?"—":Number(value ?? 0).toLocaleString(); const cards=[
   ["home",t("Find Home / Mess"),t("Find your next home, not just a room."),t("Browse mess seats and home listings by location, budget and availability."),t("Explore homes"),"lavender"],
   ["tuition",t("Tuition"),t("Find the right tuition opportunity."),t("Students can discover tuition posts while guardians connect with suitable tutors."),t("Explore tuition"),"mint"],
   ["market",t("Buy / Sell"),t("Buy and sell what you need."),t("Discover useful items from your campus community or post your own products for sale."),t("Explore marketplace"),"peach"]
@@ -18,3 +18,4 @@ export default function Landing(){const {t}=useLanguage(); const [community, set
   <section className="community-strip" id="community"><div className="community-copy"><p className="kicker">{t("Made for your campus")}</p><h2>{t("A community that")}<br/>{t("keeps growing.")}</h2><p>{t("Real people are joining CampusNest to find homes, share tuition opportunities and build a more connected university community.")}</p></div><div className="community-stats"><div><i>♙</i><strong>{count(community.students)}</strong><span>{t("Students joined")}</span></div><div><i>♡</i><strong>{count(community.guardians)}</strong><span>{t("Guardians joined")}</span></div><div><i>⌂</i><strong>{count(community.homeowners)}</strong><span>{t("Homeowners joined")}</span></div></div></section>
   <section className="final-cta"><i>✦</i><p className="kicker">{t("Your campus. Your community.")}</p><h2>{t("Ready to find your place?")}</h2><p>{t("Join CampusNest today. Browsing, posting and applying are always free.")}</p><div><Link className="button button-dark" to="/login?mode=signup">{t("Get started for free")} →</Link><Link className="text-link" to="/login">{t("Already a member? Log in")}</Link></div></section>
   </main><Footer/></div>}
+

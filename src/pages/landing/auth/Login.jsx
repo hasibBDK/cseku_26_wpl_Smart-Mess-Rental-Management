@@ -48,3 +48,4 @@ export default function Login() {
     <p className="switch">{t(signup ? "Already have an account?" : "New to CampusNest?")} <Link to={signup ? "/login" : "/login?mode=signup"}>{t(signup ? "Log in" : "Create an account")}</Link></p>
   </section><aside className="auth-art"><div className="quote"><b>“</b><h2>{t("Finding a safe place near campus shouldn’t feel like a full-time job.")}</h2><p>{t("CampusNest brings the right people closer.")}</p></div><div className="house"><span /><i /><b>♧</b></div><div className="art-pill">{t("Made for the university community")} ♥</div></aside></main></div>;
 }
+
